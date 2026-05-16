@@ -1,0 +1,38 @@
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Light theme */
+  --bg-deep: #f0f4f8;
+  --bg-panel: rgba(255, 255, 255, 0.92);
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-card-hover: #f8fafc;
+  --bg-input: #ffffff;
+  --bg-chat: #eef2f7;
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --accent-purple: #a855f7;
+  --accent-pink: #ec4899;
+
+  --online: #10b981;
+  --border: rgba(15, 23, 42, 0.08);
+  --border-subtle: rgba(15, 23, 42, 0.06);
+
+  --shadow-lg: 0 12px 32px rgba(99, 102, 241, 0.18);
+  --shadow-card: 0 8px 24px rgba(99, 102, 241, 0.1);
+  --blur: blur(20px);
+
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+
+  --sidebar-width: 380px;
+  --header-height: 72px;
+
+  --bubble-me: linear-gradient(135deg, #818cf8, #a855f7);
+  --bubble-other: #ffffff;
+}

@@ -1,0 +1,52 @@
+.msg-row {
+  display: flex;
+  margin-bottom: 2px;
+}
+
+.msg-row--me {
+  justify-content: flex-end;
+}
+
+.msg-bubble {
+  max-width: 65%;
+  padding: 6px 8px 4px;
+  border-radius: 8px;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+  position: relative;
+}
+
+.msg-row--me .msg-bubble {
+  background: var(--wa-bubble-me);
+  border-top-right-radius: 0;
+}
+
+.msg-row--other .msg-bubble {
+  background: var(--wa-bubble-other);
+  border-top-left-radius: 0;
+}
+
+.msg-bubble__text {
+  font-size: 14.2px;
+  line-height: 1.4;
+  word-break: break-word;
+  padding-right: 52px;
+}
+
+.msg-bubble__meta {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.msg-bubble__time {
+  font-size: 11px;
+  color: var(--wa-muted);
+}
+
+.msg-bubble__tick {
+  font-size: 14px;
+  color: #53bdeb;
+}

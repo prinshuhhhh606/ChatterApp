@@ -1,0 +1,103 @@
+.message-input {
+  flex-shrink: 0;
+  padding: 20px 28px 24px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  backdrop-filter: var(--blur);
+}
+
+.message-input__form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.message-input__tools {
+  display: flex;
+  gap: 6px;
+}
+
+.message-input__tool-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: rgba(31, 41, 55, 0.8);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.message-input__tool-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(55, 65, 81, 0.9);
+}
+
+.message-input__field-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: rgb(183, 176, 176);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 4px 6px 4px 18px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.message-input__field-wrap:focus-within {
+  border-color: gray;
+  box-shadow: 0 0 0 3px rgba(107, 107, 114, 0.12);
+}
+
+.message-input__field {
+  flex: 1;
+  padding: 12px 0;
+  background: rgb(183, 176, 176);
+  color: var(--text-primary);
+  font-size: 15px;
+  resize: none;
+  max-height: 120px;
+  line-height: 1.4;
+}
+
+.message-input__field::placeholder {
+  color: var(--text-secondary);
+}
+
+.message-input__send {
+  flex-shrink: 0;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+}
+
+.message-input__send:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.45);
+}
+
+.message-input__send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .message-input {
+    padding: 16px;
+  }
+
+  .message-input__tools {
+    display: none;
+  }
+}

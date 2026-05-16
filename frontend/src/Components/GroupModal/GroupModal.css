@@ -1,0 +1,105 @@
+.group-modal {
+  max-height: 88vh;
+}
+
+.group-modal__name-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.group-modal__name-wrap span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.group-modal__name-wrap input {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.group-modal__name-wrap input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.group-modal__selected {
+  padding: 8px 18px 0;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.group-modal__error {
+  margin: 8px 18px 0;
+  padding: 10px 12px;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.group-modal__user {
+  position: relative;
+}
+
+.group-modal__user--selected {
+  background: rgba(99, 102, 241, 0.08) !important;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+.group-modal__check {
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.group-modal__user:not(.group-modal__user--selected) .group-modal__check {
+  background: transparent;
+  border: 2px solid var(--border);
+}
+
+.group-modal__footer {
+  padding: 14px 18px 18px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.group-modal__create {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.group-modal__create:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.group-modal__create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
