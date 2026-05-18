@@ -14,61 +14,114 @@ export default function ChatWindow({
   onConversationUpdate,
 }) {
   const { user } = useAuth();
+
   const [typingUser, setTypingUser] = useState(null);
+
   const typingTimeout = useRef(null);
+
+  const conversationId = conversation?._id || conversation?.id;
 
   useEffect(() => {
     const socket = getSocket();
-    if (!socket || !conversation) return;
 
-    socket.emit("join_conversation", { conversationId: conversation.id });
+    if (!socket || !conversationId) return;
+
+    console.log("📥 Joining conversation:", conversationId);
+
+    socket.emit("join_conversation", {
+      conversationId,
+    });
 
     const onReceive = (msg) => {
-      if (msg.conversationId === conversation.id) onMessage(msg);
+      console.log("📩 Message received:", msg);
+
+      if (msg.conversationId === conversationId) {
+        onMessage(msg);
+      }
     };
 
-    const onTyping = ({ conversationId, userId, username, isTyping }) => {
-      if (conversationId === conversation.id && userId !== user.id) {
+    const onTyping = ({ conversationId: cid, userId, username, isTyping }) => {
+      if (cid === conversationId && userId !== (user._id || user.id)) {
         setTypingUser(isTyping ? username : null);
       }
     };
 
-    const onConvUpdate = ({ conversationId, lastMessage, lastMessageAt }) => {
-      if (conversationId === conversation.id) {
-        onConversationUpdate({ lastMessage, lastMessageAt });
+    const onConvUpdate = ({
+      conversationId: cid,
+      lastMessage,
+      lastMessageAt,
+    }) => {
+      if (cid === conversationId) {
+        onConversationUpdate({
+          lastMessage,
+          lastMessageAt,
+        });
       }
     };
 
     socket.on("receive_message", onReceive);
+
     socket.on("typing", onTyping);
+
     socket.on("conversation_updated", onConvUpdate);
 
     return () => {
       socket.off("receive_message", onReceive);
+
       socket.off("typing", onTyping);
+
       socket.off("conversation_updated", onConvUpdate);
     };
-  }, [conversation?.id, user.id]);
+  }, [conversationId]);
 
   const handleSend = (text) => {
-    getSocket()?.emit(
+    const socket = getSocket();
+
+    if (!socket || !conversationId) return;
+
+    console.log("📤 Sending:", {
+      conversationId,
+      text,
+    });
+
+    socket.emit(
       "send_message",
-      { conversationId: conversation.id, text },
+      {
+        conversationId,
+        text,
+      },
       (res) => {
-        if (res?.message) onMessage(res.message);
-        if (res?.error) alert(res.error);
-      }
+        console.log("SEND RESPONSE:", res);
+
+        if (res?.message) {
+          onMessage(res.message);
+        }
+
+        if (res?.error) {
+          console.log("SEND ERROR:", res.error);
+
+          alert(res.error);
+        }
+      },
     );
   };
 
   const handleTyping = (isTyping) => {
-    getSocket()?.emit("typing", {
-      conversationId: conversation.id,
+    const socket = getSocket();
+
+    if (!socket || !conversationId) return;
+
+    socket.emit("typing", {
+      conversationId,
       isTyping,
     });
+
     clearTimeout(typingTimeout.current);
+
     if (isTyping) {
-      typingTimeout.current = setTimeout(() => handleTyping(false), 1500);
+      typingTimeout.current = setTimeout(() => {
+        handleTyping(false);
+      }, 1500);
     }
   };
 
@@ -79,14 +132,17 @@ export default function ChatWindow({
         typingUser={typingUser}
         onBack={onBack}
       />
+
       <MessageList
         messages={messages}
-        currentUserId={user.id}
+        currentUserId={user._id || user.id}
         isGroup={conversation.isGroup}
       />
+
       {typingUser && (
         <p className="message-list__typing">
           <span>{typingUser} is typing</span>
+
           <span className="message-list__typing-dots" aria-hidden="true">
             <span />
             <span />
@@ -94,6 +150,7 @@ export default function ChatWindow({
           </span>
         </p>
       )}
+
       <MessageInput onSend={handleSend} onTyping={handleTyping} />
     </main>
   );
