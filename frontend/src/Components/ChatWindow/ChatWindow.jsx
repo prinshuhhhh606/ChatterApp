@@ -12,6 +12,7 @@ export default function ChatWindow({
   onBack,
   onMessage,
   onConversationUpdate,
+  onDeleteMessage,
 }) {
   const { user } = useAuth();
 
@@ -137,6 +138,7 @@ export default function ChatWindow({
         messages={messages}
         currentUserId={user._id || user.id}
         isGroup={conversation.isGroup}
+        onDeleteMessage={onDeleteMessage}
       />
 
       {typingUser && (

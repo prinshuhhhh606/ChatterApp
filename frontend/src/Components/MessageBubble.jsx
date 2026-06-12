@@ -1,6 +1,6 @@
 import "./MessageBubble.css";
 
-export default function MessageBubble({ msg }) {
+export default function MessageBubble({ msg, onDelete }) {
   const isMe = msg.sender === "me";
 
   return (
@@ -15,8 +15,19 @@ export default function MessageBubble({ msg }) {
             isMe ? "message-bubble--me" : "message-bubble--other"
           }`}
         >
-          {msg.text}
+          <span className="message-text">{msg.text}</span>
+
+          <button
+            className="message-delete-btn"
+            style={{
+              opacity: 1,
+              visibility: "visible",
+            }}
+          >
+            🗑️
+          </button>
         </div>
+
         <time className="message-bubble__time">{msg.time}</time>
       </div>
     </article>

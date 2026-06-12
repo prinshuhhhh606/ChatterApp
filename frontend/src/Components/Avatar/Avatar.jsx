@@ -1,6 +1,9 @@
 import { getPhotoUrl } from "../../utils/avatar";
 import "./Avatar.css";
 
+const DEFAULT_AVATAR =
+  "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";
+
 export default function Avatar({
   user,
   size = "md",
@@ -11,11 +14,9 @@ export default function Avatar({
   groupName,
   className = "",
 }) {
-  const photoUrl = isGroup ? user?.groupPhotoUrl || user?.photoUrl : getPhotoUrl(user);
-  const letter = isGroup
-    ? (groupName || user?.groupName || "G").charAt(0).toUpperCase()
-    : user?.avatar || "?";
-  const color = user?.avatarColor || "#8b5cf6";
+  const photoUrl = isGroup
+    ? user?.groupPhotoUrl || user?.photoUrl
+    : getPhotoUrl(user);
 
   const classes = [
     "avatar",
@@ -27,19 +28,21 @@ export default function Avatar({
     .join(" ");
 
   return (
-    <span className={classes} style={!photoUrl ? { background: color } : undefined}>
-      {photoUrl ? (
-        <img src={photoUrl} alt="" className="avatar__img" />
-      ) : isGroup ? (
-        <span className="avatar__group-icon" aria-hidden="true">
-          👥
-        </span>
-      ) : (
-        letter
-      )}
+    <span className={classes}>
+      <img
+        src={photoUrl || DEFAULT_AVATAR}
+        alt={isGroup ? groupName || "Group" : user?.username || "User"}
+        className="avatar__img"
+        onError={(e) => {
+          e.target.src = DEFAULT_AVATAR;
+        }}
+      />
+
       {showStatus && (
         <span
-          className={`avatar__status ${online ? "" : "avatar__status--offline"}`}
+          className={`avatar__status ${
+            online ? "" : "avatar__status--offline"
+          }`}
         />
       )}
     </span>

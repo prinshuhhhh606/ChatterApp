@@ -1,5 +1,6 @@
 import { useSocket } from "../context/SocketContext";
 import { formatMessageTime } from "../utils/formatTime";
+import { DEFAULT_AVATAR } from "../constants";
 import Avatar from "./Avatar/Avatar";
 import "./ChatCard.css";
 
@@ -37,7 +38,11 @@ export default function ChatCard({ conversation, isActive, onSelect }) {
     );
   }
 
-  const other = conversation.otherUser;
+  const other = {
+    ...conversation.otherUser,
+    profilePhotoUrl: conversation.otherUser?.profilePhotoUrl || DEFAULT_AVATAR,
+  };
+
   const online = isOnline(other.id) || other.isOnline;
 
   return (

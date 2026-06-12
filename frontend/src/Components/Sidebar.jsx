@@ -1,5 +1,6 @@
 import "./Sidebar.css";
 import ChatCard from "./ChatCard";
+import { DEFAULT_AVATAR } from "../constants";
 
 export default function Sidebar({
   chats,
@@ -12,7 +13,7 @@ export default function Sidebar({
   const filtered = chats.filter(
     (c) =>
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.message.toLowerCase().includes(searchQuery.toLowerCase())
+      c.message.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -27,10 +28,12 @@ export default function Sidebar({
             {connected ? "Live" : "Offline"}
           </span>
         </div>
+
         <div className="sidebar-search-wrap">
           <span className="sidebar-search-icon" aria-hidden="true">
             🔍
           </span>
+
           <input
             type="search"
             placeholder="Search chats..."

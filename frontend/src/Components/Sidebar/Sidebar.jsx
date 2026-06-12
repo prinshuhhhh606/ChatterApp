@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
+import { DEFAULT_AVATAR } from "../../constants";
 import ChatCard from "../ChatCard";
 import NewChatModal from "../NewChatModal/NewChatModal";
 import GroupModal from "../GroupModal/GroupModal";
@@ -32,7 +33,7 @@ export default function Sidebar({
     <aside className="sidebar">
       <header className="sidebar-top">
         <section className="sidebar-header-row">
-          <h1 className="sidebar-logo">ChatSphere</h1>
+          <h1 className="sidebar-logo">Chatter</h1>
           <span
             className={`sidebar-badge ${connected ? "sidebar-badge--live" : ""}`}
           >
@@ -47,7 +48,14 @@ export default function Sidebar({
             onClick={() => setShowProfile(true)}
             title="Change profile photo"
           >
-            <Avatar user={user} size="sm" round />
+            <Avatar
+              user={{
+                ...user,
+                profilePhotoUrl: user?.profilePhotoUrl || DEFAULT_AVATAR,
+              }}
+              size="sm"
+              round
+            />
           </button>
           <span className="sidebar-profile__name">{user.username}</span>
           <nav className="sidebar-actions" aria-label="Sidebar actions">

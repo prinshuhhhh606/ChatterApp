@@ -1,7 +1,8 @@
 /** Resolve profile photo URL (supports proxy path or full URL) */
 export function getPhotoUrl(user) {
-  if (!user?.profilePhotoUrl) return null;
-  return user.profilePhotoUrl;
+  if (user?.profilePhotoUrl) return user.profilePhotoUrl;
+  if (user?.profilePhoto) return user.profilePhoto;
+  return null;
 }
 
 export function getDisplayName(conversation) {

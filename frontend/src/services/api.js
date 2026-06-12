@@ -24,7 +24,10 @@ async function request(path, options = {}) {
 
 export const authApi = {
   register: (body) =>
-    request("/api/auth/register", { method: "POST", body: JSON.stringify(body) }),
+    request("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   login: (body) =>
     request("/api/auth/login", { method: "POST", body: JSON.stringify(body) }),
   me: () => request("/api/auth/me"),
@@ -45,8 +48,7 @@ export const userApi = {
     if (!res.ok) throw new Error(data.error || "Upload failed");
     return data;
   },
-  removeAvatar: () =>
-    request("/api/users/me/avatar", { method: "DELETE" }),
+  removeAvatar: () => request("/api/users/me/avatar", { method: "DELETE" }),
 };
 
 export const chatApi = {
@@ -63,4 +65,19 @@ export const chatApi = {
     }),
   getMessages: (conversationId) =>
     request(`/api/conversations/${conversationId}/messages`),
+  deleteMessage: async (messageId, conversationId) => {
+    const primaryPath = conversationId
+      ? `/api/conversations/${conversationId}/messages/${messageId}`
+      : `/api/conversations/messages/${messageId}`;
+
+    try {
+      return await request(primaryPath, { method: "DELETE" });
+    } catch (error) {
+      if (conversationId && error.message.includes("404")) {
+        const fallbackPath = `/api/conversations/messages/${messageId}`;
+        return await request(fallbackPath, { method: "DELETE" });
+      }
+      throw error;
+    }
+  },
 };

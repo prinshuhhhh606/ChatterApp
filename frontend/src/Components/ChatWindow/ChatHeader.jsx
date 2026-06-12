@@ -1,5 +1,6 @@
 import { useSocket } from "../../context/SocketContext";
 import { formatLastSeen } from "../../utils/formatTime";
+import { DEFAULT_AVATAR } from "../../constants";
 import Avatar from "../Avatar/Avatar";
 import "../ChatHeader.css";
 
@@ -8,7 +9,7 @@ export default function ChatHeader({ conversation, typingUser, onBack }) {
 
   if (conversation.isGroup) {
     const onlineCount = conversation.participants?.filter(
-      (p) => isOnline(p.id) || p.isOnline
+      (p) => isOnline(p.id) || p.isOnline,
     ).length;
 
     return (
@@ -38,7 +39,10 @@ export default function ChatHeader({ conversation, typingUser, onBack }) {
     );
   }
 
-  const other = conversation.otherUser;
+  const other = {
+    ...conversation.otherUser,
+    profilePhotoUrl: conversation.otherUser?.profilePhotoUrl || DEFAULT_AVATAR,
+  };
   const online = isOnline(other.id) || other.isOnline;
 
   return (

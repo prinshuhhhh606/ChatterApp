@@ -1,6 +1,9 @@
+/* Row */
+
 .message-bubble-row {
   display: flex;
-  margin-bottom: 4px;
+  width: 100%;
+  margin: 6px 0;
 }
 
 .message-bubble-row--me {
@@ -9,63 +12,129 @@
 
 .message-bubble-row--other {
   justify-content: flex-start;
-  align-items: flex-end;
-  gap: 8px;
 }
 
-.message-bubble__avatar {
-  border-radius: 50% !important;
-  margin-bottom: 18px;
-}
-
-.message-bubble__sender {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 4px;
-  padding-left: 4px;
-}
+/* Wrapper */
 
 .message-bubble-wrap {
   display: flex;
   flex-direction: column;
-  max-width: min(420px, 75%);
+  max-width: 75%;
 }
 
-.message-bubble-row--me .message-bubble-wrap {
-  align-items: flex-end;
-}
+/* Bubble */
 
 .message-bubble {
-  padding: 12px 18px;
-  border-radius: 20px;
-  font-size: 15px;
-  line-height: 1.45;
+  position: relative;
+  padding: 10px 14px;
+  border-radius: 18px;
   word-break: break-word;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  line-height: 1.5;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
 }
 
+/* My Message */
+
 .message-bubble--me {
-  background: var(--bubble-me);
-  color: white;
+  background: #dcf8c6;
+  color: #111827;
   border-bottom-right-radius: 6px;
 }
 
+/* Other User */
+
 .message-bubble--other {
-  background: var(--bubble-other);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
+  background: #ffffff;
+  color: #111827;
   border-bottom-left-radius: 6px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
+/* Text */
+
+.message-text {
+  display: block;
+  white-space: pre-wrap;
+}
+
+/* Time */
+
 .message-bubble__time {
-  font-size: 11px;
-  color: var(--text-muted);
   margin-top: 4px;
-  padding: 0 4px;
+  font-size: 11px;
+  color: #6b7280;
 }
 
 .message-bubble-row--me .message-bubble__time {
   text-align: right;
+}
+
+.message-bubble-row--other .message-bubble__time {
+  text-align: left;
+}
+
+/* Delete Button */
+
+.message-delete-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+
+  width: 26px;
+  height: 26px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #ef4444;
+  color: white;
+
+  cursor: pointer;
+
+  opacity: 0;
+  visibility: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.2s ease;
+}
+
+.message-bubble:hover .message-delete-btn {
+  opacity: 1;
+  visibility: visible;
+}
+
+.message-delete-btn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.message-delete-btn:active {
+  transform: scale(0.95);
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+  .message-bubble-wrap {
+    max-width: 88%;
+  }
+
+  .message-bubble {
+    font-size: 13px;
+    padding: 9px 12px;
+      
+  }
+
+  .message-bubble__time {
+    font-size: 10px;
+  }
+}
+
+
+.message-bubble:hover .message-delete-btn {
+  opacity: 1;
 }

@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { userApi } from "../../services/api";
+import { DEFAULT_AVATAR } from "../../constants";
 import Avatar from "../Avatar/Avatar";
 import "../NewChatModal/NewChatModal.css";
 import "./ProfileModal.css";
@@ -66,11 +67,21 @@ export default function ProfileModal({ onClose }) {
         </header>
 
         <section className="profile-modal__preview">
-          <Avatar user={user} size="lg" round />
-          <p className="profile-modal__hint">
-            JPG, PNG or WEBP · max 3MB
-          </p>
-          {error && <p className="auth-error" style={{ width: "100%" }}>{error}</p>}
+          <Avatar
+            user={{
+              ...user,
+              profilePhotoUrl:
+                user?.profilePhotoUrl || user?.profilePhoto || DEFAULT_AVATAR,
+            }}
+            size="lg"
+            round
+          />
+          <p className="profile-modal__hint">JPG, PNG or WEBP · max 3MB</p>
+          {error && (
+            <p className="auth-error" style={{ width: "100%" }}>
+              {error}
+            </p>
+          )}
         </section>
 
         <section className="profile-modal__actions">
@@ -89,7 +100,7 @@ export default function ProfileModal({ onClose }) {
           >
             {loading ? "Uploading..." : "Upload photo"}
           </button>
-          {user.profilePhotoUrl && (
+          {(user.profilePhotoUrl || user.profilePhoto) && (
             <button
               type="button"
               className="profile-modal__btn profile-modal__btn--danger"

@@ -215,7 +215,10 @@ export async function getMessages(req, res) {
     }
     // Sirf sender apna message delete kar sakta hai
     if (message.sender.toString() !== req.user._id.toString()) {
+      console.log("Message Sender:", message.sender.toString());
+      console.log("Logged User:", req.user._id.toString());
       return res.status(403).json({ error: "Not authorized" });
+      
     }
 
     message.isDeleted = true;

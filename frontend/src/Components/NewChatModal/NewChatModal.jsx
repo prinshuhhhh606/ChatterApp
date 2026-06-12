@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { chatApi, userApi } from "../../services/api";
 import { useSocket } from "../../context/SocketContext";
+import { DEFAULT_AVATAR } from "../../constants";
 import Avatar from "../Avatar/Avatar";
 import "./NewChatModal.css";
 
@@ -20,7 +21,7 @@ export default function NewChatModal({ onClose, onSelect }) {
   }, []);
 
   const filtered = users.filter((u) =>
-    u.username.toLowerCase().includes(search.toLowerCase())
+    u.username.toLowerCase().includes(search.toLowerCase()),
   );
 
   const startChat = async (userId) => {
@@ -69,7 +70,10 @@ export default function NewChatModal({ onClose, onSelect }) {
                   onClick={() => startChat(u.id)}
                 >
                   <Avatar
-                    user={u}
+                    user={{
+                      ...u,
+                      profilePhotoUrl: u?.profilePhotoUrl || DEFAULT_AVATAR,
+                    }}
                     size="md"
                     showStatus
                     online={isOnline(u.id) || u.isOnline}
@@ -78,7 +82,9 @@ export default function NewChatModal({ onClose, onSelect }) {
                     <p className="modal__username">{u.username}</p>
                     <p
                       className={`modal__status ${
-                        isOnline(u.id) || u.isOnline ? "modal__status--online" : ""
+                        isOnline(u.id) || u.isOnline
+                          ? "modal__status--online"
+                          : ""
                       }`}
                     >
                       {isOnline(u.id) || u.isOnline ? "online" : "offline"}

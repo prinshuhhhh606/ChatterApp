@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { chatApi, userApi } from "../../services/api";
 import { useSocket } from "../../context/SocketContext";
+import { DEFAULT_AVATAR } from "../../constants";
 import Avatar from "../Avatar/Avatar";
 import "../NewChatModal/NewChatModal.css";
 import "./GroupModal.css";
@@ -24,7 +25,7 @@ export default function GroupModal({ onClose, onCreated }) {
   }, []);
 
   const filtered = users.filter((u) =>
-    u.username.toLowerCase().includes(search.toLowerCase())
+    u.username.toLowerCase().includes(search.toLowerCase()),
   );
 
   const toggleUser = (id) => {
@@ -60,7 +61,10 @@ export default function GroupModal({ onClose, onCreated }) {
 
   return (
     <section className="modal-overlay" onClick={onClose} role="presentation">
-      <article className="modal group-modal" onClick={(e) => e.stopPropagation()}>
+      <article
+        className="modal group-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <header className="modal__header">
           <h2>New group</h2>
           <button type="button" className="modal__close" onClick={onClose}>
@@ -112,7 +116,10 @@ export default function GroupModal({ onClose, onCreated }) {
                   onClick={() => toggleUser(u.id)}
                 >
                   <Avatar
-                    user={u}
+                    user={{
+                      ...u,
+                      profilePhotoUrl: u?.profilePhotoUrl || DEFAULT_AVATAR,
+                    }}
                     size="md"
                     showStatus
                     online={isOnline(u.id) || u.isOnline}

@@ -33,10 +33,16 @@ export default function ChatPage() {
         prev
           .map((c) =>
             c.id === conversationId
-              ? { ...c, lastMessage, lastMessageAt: lastMessageAt || new Date() }
-              : c
+              ? {
+                  ...c,
+                  lastMessage,
+                  lastMessageAt: lastMessageAt || new Date(),
+                }
+              : c,
           )
-          .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt))
+          .sort(
+            (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt),
+          ),
       );
     };
 
@@ -61,14 +67,24 @@ export default function ChatPage() {
       return [...prev, msg];
     });
     setConversations((prev) =>
-      [...prev
-        .map((c) =>
+      [
+        ...prev.map((c) =>
           c.id === msg.conversationId
             ? { ...c, lastMessage: msg.text, lastMessageAt: msg.createdAt }
-            : c
-        )]
-        .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt))
+            : c,
+        ),
+      ].sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)),
     );
+  };
+
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      await chatApi.deleteMessage(messageId, activeConv?.id);
+      setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+    } catch (error) {
+      console.error("Delete message failed", error);
+      alert(error.message || "Unable to delete message");
+    }
   };
 
   const handleConversationCreated = (conv) => {
@@ -112,6 +128,7 @@ export default function ChatPage() {
           onConversationUpdate={({ lastMessage, lastMessageAt }) => {
             setActiveConv((c) => ({ ...c, lastMessage, lastMessageAt }));
           }}
+          onDeleteMessage={handleDeleteMessage}
         />
       ) : (
         <EmptyState />

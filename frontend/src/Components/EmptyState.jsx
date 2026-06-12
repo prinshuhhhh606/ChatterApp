@@ -6,7 +6,7 @@ export default function EmptyState() {
       <span className="empty-state__icon" aria-hidden="true">
         💬
       </span>
-      <h2 className="empty-state__title">Welcome to ChatSphere</h2>
+      <h2 className="empty-state__title">Welcome to Chatter</h2>
       <p className="empty-state__text">
         Select a conversation from the sidebar or start a new chat with the ✏️
         button. Messages sync in real time.

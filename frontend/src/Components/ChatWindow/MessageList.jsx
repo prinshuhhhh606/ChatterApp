@@ -2,7 +2,12 @@ import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
 import "../MessageList.css";
 
-export default function MessageList({ messages, currentUserId, isGroup }) {
+export default function MessageList({
+  messages,
+  currentUserId,
+  isGroup,
+  onDeleteMessage,
+}) {
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -20,6 +25,7 @@ export default function MessageList({ messages, currentUserId, isGroup }) {
           message={msg}
           isMe={msg.sender.id === currentUserId}
           isGroup={isGroup}
+          onDelete={() => onDeleteMessage?.(msg.id)}
         />
       ))}
       <span ref={bottomRef} aria-hidden="true" />
