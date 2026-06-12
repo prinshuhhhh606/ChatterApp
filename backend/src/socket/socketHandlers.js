@@ -4,19 +4,25 @@ import { User } from "../models/User.js";
 import { formatUser } from "../utils/formatUser.js";
 import { socketAuth } from "./socketAuth.js";
 
-// Track online user IDs in memory (userId -> socketId count for multi-tab)
+// userId -> number of connected tabs
 const onlineUsers = new Map();
 
 function addOnline(userId) {
   const key = userId.toString();
+
   onlineUsers.set(key, (onlineUsers.get(key) || 0) + 1);
 }
 
 function removeOnline(userId) {
   const key = userId.toString();
+
   const count = (onlineUsers.get(key) || 1) - 1;
-  if (count <= 0) onlineUsers.delete(key);
-  else onlineUsers.set(key, count);
+
+  if (count <= 0) {
+    onlineUsers.delete(key);
+  } else {
+    onlineUsers.set(key, count);
+  }
 }
 
 function isUserOnline(userId) {
@@ -24,138 +30,239 @@ function isUserOnline(userId) {
 }
 
 /**
- * Register all real-time Socket.IO events.
+ * Register all socket handlers
  */
 export function registerSocketHandlers(io) {
   io.use(socketAuth);
 
   io.on("connection", async (socket) => {
-    const userId = socket.user._id.toString();
-    console.log(`Socket connected: ${socket.user.username} (${socket.id})`);
+    try {
+      const userId = socket.user._id.toString();
 
-    // Personal room — for direct notifications to this user
-    socket.join(`user:${userId}`);
-    addOnline(userId);
+      console.log(
+        `✅ Socket connected: ${socket.user.username} (${socket.id})`,
+      );
 
-    await User.findByIdAndUpdate(socket.user._id, {
-      isOnline: true,
-      lastSeen: new Date(),
-    });
+      /**
+       * PERSONAL ROOM
+       */
+      socket.join(`user:${userId}`);
 
-    // Broadcast online status to everyone
-    io.emit("user_status", {
-      userId,
-      isOnline: true,
-      lastSeen: new Date(),
-    });
+      addOnline(userId);
 
-    // Send list of currently online users to the new client
-    socket.emit("online_users", Array.from(onlineUsers.keys()));
-
-    /** Join a conversation room to receive messages */
-    socket.on("join_conversation", async ({ conversationId }) => {
-      const conv = await Conversation.findOne({
-        _id: conversationId,
-        participants: socket.user._id,
+      await User.findByIdAndUpdate(userId, {
+        isOnline: true,
+        lastSeen: new Date(),
       });
 
-      if (conv) {
-        socket.join(`conversation:${conversationId}`);
-      }
-    });
+      /**
+       * BROADCAST STATUS
+       */
+      io.emit("user_status", {
+        userId,
+        isOnline: true,
+        lastSeen: new Date(),
+      });
 
-    /** Real-time message */
-    socket.on("send_message", async ({ conversationId, text }, callback) => {
-      try {
-        const trimmed = String(text ?? "").trim();
-        if (!trimmed) {
-          return callback?.({ error: "Empty message" });
+      /**
+       * SEND ONLINE USERS
+       */
+      socket.emit("online_users", Array.from(onlineUsers.keys()));
+
+      /**
+       * JOIN CONVERSATION
+       */
+      socket.on("join_conversation", async ({ conversationId }) => {
+        try {
+          if (!conversationId) return;
+
+          console.log("📥 JOIN REQUEST:", socket.user.username, conversationId);
+
+          const conversation = await Conversation.findOne({
+            _id: conversationId,
+            participants: socket.user._id,
+          });
+
+          console.log("FOUND CONVERSATION:", conversation ? "YES" : "NO");
+
+          if (!conversation) {
+            console.log("❌ Conversation not found");
+            return;
+          }
+
+          socket.join(`conversation:${conversationId}`);
+
+          console.log(
+            `✅ ${socket.user.username} joined room conversation:${conversationId}`,
+          );
+        } catch (error) {
+          console.log("join_conversation error:", error.message);
         }
+      });
 
-        const conversation = await Conversation.findOne({
-          _id: conversationId,
-          participants: socket.user._id,
-        });
+      /**
+       * SEND MESSAGE
+       */
+      socket.on("send_message", async ({ conversationId, text }, callback) => {
+        try {
+          console.log("========== SEND MESSAGE ==========");
 
-        if (!conversation) {
-          return callback?.({ error: "Conversation not found" });
-        }
+          console.log("USER:", socket.user.username);
 
-        const message = await Message.create({
-          conversationId,
-          sender: socket.user._id,
-          text: trimmed,
-        });
+          console.log("USER ID:", socket.user._id.toString());
 
-        await message.populate(
-          "sender",
-          "username avatar avatarColor profilePhoto"
-        );
+          console.log("CONVERSATION ID:", conversationId);
 
-        conversation.lastMessage = {
-          text: trimmed,
-          sender: socket.user._id,
-          createdAt: message.createdAt,
-        };
-        conversation.updatedAt = new Date();
-        await conversation.save();
+          console.log("TEXT:", text);
 
-        const payload = {
-          id: message._id.toString(),
-          conversationId: conversationId.toString(),
-          text: message.text,
-          sender: formatUser(message.sender),
-          createdAt: message.createdAt,
-        };
+          const trimmed = String(text || "").trim();
 
-        // Everyone in this chat room receives the message
-        io.to(`conversation:${conversationId}`).emit("receive_message", payload);
+          if (!trimmed) {
+            return callback?.({
+              error: "Empty message",
+            });
+          }
 
-        // Notify participants for sidebar update (even if not in room)
-        for (const participantId of conversation.participants) {
-          const pid = participantId.toString();
-          io.to(`user:${pid}`).emit("conversation_updated", {
+          /**
+           * FIND CONVERSATION
+           */
+          const conversation = await Conversation.findOne({
+            _id: conversationId,
+            participants: socket.user._id,
+          });
+
+          console.log("FOUND CONVERSATION:", conversation);
+
+          if (!conversation) {
+            console.log("❌ Conversation not found for this user");
+
+            return callback?.({
+              error: "Conversation not found",
+            });
+          }
+
+          /**
+           * CREATE MESSAGE
+           */
+          const message = await Message.create({
+            conversationId,
+            sender: socket.user._id,
+            text: trimmed,
+          });
+
+          await message.populate(
+            "sender",
+            "username avatar avatarColor profilePhoto",
+          );
+
+          /**
+           * UPDATE CONVERSATION
+           */
+          conversation.lastMessage = {
+            text: trimmed,
+            sender: socket.user._id,
+            createdAt: message.createdAt,
+          };
+
+          conversation.updatedAt = new Date();
+
+          await conversation.save();
+
+          /**
+           * PAYLOAD
+           */
+          const payload = {
+            id: message._id.toString(),
+
             conversationId: conversationId.toString(),
-            lastMessage: trimmed,
-            lastMessageAt: message.createdAt,
+
+            text: message.text,
+
+            sender: formatUser(message.sender),
+
+            createdAt: message.createdAt,
+          };
+
+          console.log(
+            "📤 Sending message to room:",
+            `conversation:${conversationId}`,
+          );
+
+          console.log("PAYLOAD:", payload);
+
+          /**
+           * SEND TO ROOM
+           */
+          io.to(`conversation:${conversationId}`).emit(
+            "receive_message",
+            payload,
+          );
+
+          /**
+           * SIDEBAR UPDATE
+           */
+          for (const participantId of conversation.participants) {
+            const pid = participantId.toString();
+
+            io.to(`user:${pid}`).emit("conversation_updated", {
+              conversationId: conversationId.toString(),
+
+              lastMessage: trimmed,
+
+              lastMessageAt: message.createdAt,
+            });
+          }
+
+          callback?.({
+            success: true,
+            message: payload,
+          });
+        } catch (error) {
+          console.log("❌ send_message error:", error.message);
+
+          callback?.({
+            error: error.message,
           });
         }
-
-        callback?.({ success: true, message: payload });
-      } catch (error) {
-        callback?.({ error: error.message });
-      }
-    });
-
-    /** Typing indicator */
-    socket.on("typing", ({ conversationId, isTyping }) => {
-      socket.to(`conversation:${conversationId}`).emit("typing", {
-        conversationId,
-        userId,
-        username: socket.user.username,
-        isTyping: !!isTyping,
       });
-    });
 
-    socket.on("disconnect", async () => {
-      removeOnline(userId);
-
-      // Only mark offline when no more tabs connected
-      if (!isUserOnline(userId)) {
-        const lastSeen = new Date();
-        await User.findByIdAndUpdate(socket.user._id, {
-          isOnline: false,
-          lastSeen,
-        });
-
-        io.emit("user_status", {
+      /**
+       * TYPING
+       */
+      socket.on("typing", ({ conversationId, isTyping }) => {
+        socket.to(`conversation:${conversationId}`).emit("typing", {
+          conversationId,
           userId,
-          isOnline: false,
-          lastSeen,
+          username: socket.user.username,
+          isTyping: !!isTyping,
         });
-      }
+      });
 
-      console.log(`Socket disconnected: ${socket.user.username}`);
-    });
+      /**
+       * DISCONNECT
+       */
+      socket.on("disconnect", async (reason) => {
+        console.log(`❌ Socket disconnected: ${socket.user.username}`, reason);
+
+        removeOnline(userId);
+
+        if (!isUserOnline(userId)) {
+          const lastSeen = new Date();
+
+          await User.findByIdAndUpdate(userId, {
+            isOnline: false,
+            lastSeen,
+          });
+
+          io.emit("user_status", {
+            userId,
+            isOnline: false,
+            lastSeen,
+          });
+        }
+      });
+    } catch (error) {
+      console.log("Socket connection error:", error.message);
+    }
   });
 }

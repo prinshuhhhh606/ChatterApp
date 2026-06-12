@@ -3,8 +3,7 @@ import { env } from "../config/env.js";
 import { User } from "../models/User.js";
 
 /**
- * Socket.IO middleware — same JWT as REST API.
- * Client sends: io({ auth: { token: '...' } })
+ * Socket.IO JWT auth middleware
  */
 export async function socketAuth(socket, next) {
   try {
@@ -15,6 +14,7 @@ export async function socketAuth(socket, next) {
     }
 
     const decoded = jwt.verify(token, env.jwtSecret);
+
     const user = await User.findById(decoded.id);
 
     if (!user) {
@@ -22,8 +22,11 @@ export async function socketAuth(socket, next) {
     }
 
     socket.user = user;
+
     next();
-  } catch {
+  } catch (error) {
+    console.log("Socket auth error:", error.message);
+
     next(new Error("Invalid token"));
   }
 }

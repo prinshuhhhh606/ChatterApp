@@ -30,11 +30,14 @@ const io = new Server(server, {
 // Express CORS
 app.use(
   cors({
-    origin: env.clientOrigins,
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://chatter-app-fawn.vercel.app",
+    ],
     credentials: true,
   }),
 );
-
 app.use(express.json());
 
 // Serve uploaded profile photos

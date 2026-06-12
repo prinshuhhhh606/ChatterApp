@@ -196,4 +196,39 @@ export async function getMessages(req, res) {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+  
+}
+/** DELETE /api/conversations/messages/:id */
+
+ export async function deleteMessage(req, res) {
+  try {
+    console.log("PARAMS:", req.params);
+
+    const { id } = req.params;
+
+    const message = await Message.findById(id);
+
+    console.log("MESSAGE:", message);
+
+    if (!message) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+    // Sirf sender apna message delete kar sakta hai
+    if (message.sender.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    message.isDeleted = true;
+    message.deletedAt = new Date();
+    message.text = "This message was deleted";
+
+    await message.save();
+
+    res.json({
+      success: true,
+      message: "Message deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
